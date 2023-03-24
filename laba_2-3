@@ -1,0 +1,271 @@
+import pygame as pg
+import math
+FPS=90
+
+colonka=30
+stolbec=15
+ab=40
+
+
+def get_rect(x, y):
+    return x * ab + 1, y * ab + 1, ab - 2, ab - 2
+
+
+def get_next_nodes(x, y): # Принимает координаты текущей дискреты возвращает массив(координат следующей клетки) если функция   check_next_node вернет True
+    check_next_node = lambda x, y: True if 0 <= x < colonka and 0 <= y < stolbec and not grid[y][x] else False # Проверк чтобы соседние клетки не вылезали за границу экрана
+    ways = [-1, 0], [0, -1], [1, 0], [0, 1] # Список путей
+    return [(x + dx, y + dy) for dx, dy in ways if check_next_node(x + dx, y + dy)]
+
+pg.init()
+
+sc = pg.display.set_mode([colonka * ab, stolbec * ab])
+pg.display.set_caption("Графический редактор рабочей зоны")
+sc.fill((255, 0, 0))
+
+clock = pg.time.Clock()
+# Построение сетки дискретизация
+
+
+grid = [[0 for col in range(colonka)] for row in range(stolbec)] #Генерим карту местности
+
+
+rst=0 #Пограничное расстояние между клетками
+def stena0(xpos, ypos):  # Функция определяющая в котором находится препятствие
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                        ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 0
+
+def stena(xpos,ypos): #Функция определяющая в котором находится препятствие
+    for i in range(stolbec):
+        for j in range(colonka):
+            if (   ( ((j * ab)+rst) < xpos <  (((j * ab) + ab)-rst)  ) and ( ((i * ab)+rst )< ypos < (((i * ab) + ab)-rst) )   ):
+                grid[i][j]=1
+
+
+def stena2(xpos, ypos):  # Функция определяющая в котором находится препятствие
+
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                    ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 2
+
+
+def stena3(xpos, ypos):  # Функция определяющая в котором находится препятствие
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                        ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 3
+
+
+def stena4(xpos, ypos):  # Функция определяющая в котором находится препятствие
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                        ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 4
+
+def stena5(xpos, ypos):  # Функция определяющая в котором находится препятствие
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                        ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 5
+
+def stena6(xpos, ypos):  # Функция определяющая в котором находится препятствие
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                        ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 6
+
+def stena7(xpos, ypos):  # Функция определяющая в котором находится препятствие
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                        ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 7
+
+def stena8(xpos, ypos):  # Функция определяющая в котором находится препятствие
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                        ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 8
+def stena9(xpos, ypos):  # Функция определяющая в котором находится препятствие с ребром 9
+    for i in range(stolbec):
+        for j in range(colonka):
+            if ((((j * ab) + rst) < xpos < (((j * ab) + ab) - rst)) and (
+                        ((i * ab) + rst) < ypos < (((i * ab) + ab) - rst))):
+                grid[i][j] = 9
+
+def draw_stena(xpos, ypos,a,b,c): # Рисуем препятствие по щелчку мыши в пределах координат дискреты в которую тыкнули
+    nx = xpos / ab
+    ny = ypos / ab
+    x0 = ab * math.ceil(nx) - ab
+    y0 = ab * math.ceil(ny) - ab
+    pg.draw.rect(sc, (a, b, c), (x0, y0, ab, ab), 2)
+def draw_stena0(xpos, ypos): #Задаем нулевое значение ребра СТИРАЕМ
+    nx = xpos / ab
+    ny = ypos / ab
+    x0 = ab * math.ceil(nx) - ab
+    y0 = ab * math.ceil(ny) - ab
+    pg.draw.rect(sc, (0,128,0), (x0, y0, ab, ab), 1)
+def draw_text(xpos, ypos, num): #Рисуем значение веса ребра
+    nx = xpos / ab
+    ny = ypos / ab
+    x0n = ab * math.ceil(nx) - ab
+    y0n = ab * math.ceil(ny) - ab
+    font = pg.font.Font(None, 25)
+    text = font.render(num, True, (0,0,0))
+    xn=x0n+(ab/2)
+    yn =y0n+(ab/2)
+    sc.blit(text, [xn, yn])
+
+
+def auto_0():
+    for i in range(stolbec):
+        for j in range(colonka):
+            if  grid[i][j] == 0:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("0", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+
+def start(xpos,ypos):
+    start1 = ()
+    nx = xpos / ab
+    ny = ypos / ab
+    xst =  math.ceil(nx)-1
+    yst = math.ceil(ny)-1
+    start1=start1+(xst,yst)
+    print("START=",start1)
+    x0 = ab * math.ceil(nx) - ab
+    y0 = ab * math.ceil(ny) - ab
+    pg.draw.rect(sc, (0, 0, 255), (x0, y0, ab, ab), 5)
+
+def goal(xpos, ypos):
+    end = ()
+    nx = xpos / ab
+    ny = ypos / ab
+    xg = math.ceil(nx) - 1
+    yg = math.ceil(ny) - 1
+
+    end = end + (xg,yg)
+    print("END=",end)
+    x0 = ab * math.ceil(nx) - ab
+    y0 = ab * math.ceil(ny) - ab
+    pg.draw.rect(sc, (0, 255, 255), (x0, y0, ab, ab), 5)
+
+
+
+
+graph = {} #наш граф список смежности
+for y, row in enumerate(grid):
+    for x, col in enumerate(row):
+        if not col:
+            graph[(x, y)] = graph.get((x, y), []) + get_next_nodes(x, y)
+
+
+
+
+bg = pg.image.load('Map.png').convert()
+bg = pg.transform.scale(bg, (colonka * ab, stolbec * ab))
+
+pg.display.update()
+
+sc.blit(bg, (0, 0))
+
+
+running = True
+while running:
+
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
+        elif (event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_0):
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena0(xpos, ypos)
+            stena0(xpos,ypos)
+            draw_text(xpos, ypos, "0")
+        elif ( event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_1): # Пишет в консоль положение курсора по нажатию кнопки мыши
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,255,0,0)
+            stena(xpos,ypos)
+            draw_text(xpos, ypos, "1")
+
+
+        elif ( event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_2 ):
+
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,0,128,0)
+            stena2(xpos,ypos)
+            draw_text(xpos, ypos, "2")
+        elif (event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_3):
+
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,0,128,0)
+            stena3(xpos,ypos)
+            draw_text(xpos, ypos, "3")
+        elif (event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_4):
+
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,0,128,0)
+            stena4(xpos,ypos)
+            draw_text(xpos, ypos, "4")
+        elif (event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_5):
+
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,0,128,0)
+            stena5(xpos,ypos)
+            draw_text(xpos, ypos, "5")
+        elif (event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_6):
+
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,0,128,0)
+            stena6(xpos,ypos)
+            draw_text(xpos, ypos, "6")
+        elif (event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_7):
+
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,0,128,0)
+            stena7(xpos,ypos)
+            draw_text(xpos, ypos, "7")
+        elif (event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_8):
+
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,0,128,0)
+            stena8(xpos,ypos)
+            draw_text(xpos, ypos, "8")
+        elif (event.type == pg.KEYDOWN and pg.MOUSEBUTTONDOWN and event.key == pg.K_9):
+
+            xpos, ypos = pg.mouse.get_pos()
+            draw_stena(xpos, ypos,0,128,0)
+            stena9(xpos,ypos)
+            draw_text(xpos, ypos, "9")
+        elif (event.type == pg.KEYDOWN and event.key == pg.K_UP):
+            print(",\n".join(map(str, grid)))
+            newgrid=grid
+
+
+        elif (event.type == pg.KEYDOWN and event.key == pg.K_HOME):
+            newgrid=grid
+            auto_0()
+
+        elif (event.type == pg.KEYDOWN and event.key == pg.K_s):
+            xpos, ypos = pg.mouse.get_pos()
+            start(xpos, ypos)
+            draw_text(xpos, ypos, "START")
+        elif (event.type == pg.KEYDOWN and event.key == pg.K_g):
+            xpos, ypos = pg.mouse.get_pos()
+            goal(xpos, ypos)
+            draw_text(xpos, ypos, "FINISH")
+    clock.tick(FPS)
+    pg.display.update()
