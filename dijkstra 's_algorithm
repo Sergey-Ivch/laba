@@ -1,0 +1,206 @@
+import pygame as pg
+from heapq import *
+
+
+def get_circle(x, y):
+    return (x * ab + ab // 2, y * ab + ab // 2), ab // 8
+
+
+def get_rect(x, y):
+    return x * ab + 1, y * ab + 1, ab - 2, ab - 2
+
+
+def get_next_nodes(x, y):
+    check_next_node = lambda x, y: True if 0 <= x < cols and 0 <= y < rows else False
+    ways = [-1, 0], [0, -1], [1, 0], [0, 1]
+    return [(hesh_map[y + dy][x + dx], (x + dx, y + dy)) for dx, dy in ways if check_next_node(x + dx, y + dy)]
+
+
+FPS=90
+
+cols=30
+rows=15
+ab=40
+pg.init()
+sc = pg.display.set_mode([cols * ab, rows * ab])
+clock = pg.time.Clock()
+
+
+
+hesh_map = [
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+[0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+[0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0],
+[0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+[0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
+[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+[0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0],
+[0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+[0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+[0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0],
+[0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0],
+[0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]  ]
+def drawmap(): # Визуализация карты с препятствиями:
+    for i in range(rows):
+        for j in range(cols):
+            if  hesh_map[i][j] == 0:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("0", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+            elif  hesh_map[i][j] == 1:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (255,0,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("1", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+
+            elif  hesh_map[i][j] == 2:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("2", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+            elif  hesh_map[i][j] == 3:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("3", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+            elif  hesh_map[i][j] == 4:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("4", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+            elif  hesh_map[i][j] == 5:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("5", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+
+            elif  hesh_map[i][j] == 6:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("6", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+            elif  hesh_map[i][j] == 7:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("7", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+            elif  hesh_map[i][j] == 8:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("8", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+            elif  hesh_map[i][j] == 9:
+                xnew = j * ab
+                ynew = i * ab
+                pg.draw.rect(sc, (0,128,0), (xnew, ynew, ab, ab), 1)
+                font = pg.font.Font(None, 25)
+                text = font.render("9", True, (0, 0, 0))
+                xn = xnew + (ab / 2)
+                yn = ynew + (ab / 2)
+                sc.blit(text, [xn, yn])
+
+graph = {}
+for y, row in enumerate(hesh_map):
+    for x, col in enumerate(row):
+        graph[(x, y)] = graph.get((x, y), []) + get_next_nodes(x, y)
+
+# BFS settings
+start = (4, 1) # Задаем стартовую  точку
+final = (29, 8) #Задаем конечную точку
+ochered = [] #Создаем список очереди
+heappush(ochered, (0, start)) #Создаем кучу
+stoimost_used = {start: 0}   #cтоимость ребер посещенных
+used = {start: None} #Формируеем новый   словарь(used) посещенных вершин
+
+bg = pg.image.load('Map.png').convert()
+bg = pg.transform.scale(bg, (cols * ab, rows * ab)) #Масштабирование картинки под разрешение окна
+
+
+running = True
+while running:
+
+
+    sc.blit(bg, (0, 0))
+    drawmap()# Рисуем карту местности
+    #отрисовка всех целеых точек
+    for x,y in used:
+        pg.draw.rect(sc, (0, 255, 0), get_rect(x, y), 1)  #рисуем границу адгоритма  и препятствия
+    for _, xy in ochered:
+        pg.draw.rect(sc, (240, 0, 0), get_rect(*xy))  #Рисуем желтыми квадратами шаги пути (траеторию)
+
+        pg.draw.circle(sc, pg.Color('purple'), *get_circle(*final)) #Рисуем точку конца пути
+
+    # Алгоритм Дейкстры:
+    if ochered: #Очередь для узлов
+        cur_cost, cur_node = heappop(ochered) #Используем кучу Функция heappop() модуля heapq возвращает и удаляет наименьший элемент из кучи heap, сохраняя инвариант кучи.
+        # Если куча heap пуста, то поднимается исключение IndexError.
+        if cur_node == final: #Проверяем не попали ли мы в текущий узел cur_node
+            ochered = []
+            continue
+
+        next_nodes = graph[cur_node]  ## записываем в список next_nodes содержимое ключа графа по адресу текущего значения -cur_node
+        for next_node in next_nodes:
+            sosed_cost, neigh_node = next_node
+            new_cost = stoimost_used[cur_node] + sosed_cost #
+
+            if neigh_node not in stoimost_used or new_cost < stoimost_used[neigh_node]:
+                heappush(ochered, (new_cost, neigh_node))
+                stoimost_used[neigh_node] = new_cost
+                used[neigh_node] = cur_node
+
+    # Отрисовка
+    path_head, path_segment = cur_node, cur_node
+    while path_segment:
+        pg.draw.rect(sc, (255,255,0), get_rect(*path_segment),8)
+        path_segment = used[path_segment]
+    pg.draw.circle(sc, pg.Color('blue'), *get_circle(*start))
+    pg.draw.circle(sc,(0,255,255), *get_circle(*path_head))
+
+
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
+
+
+    pg.display.flip()
+    clock.tick(7)
